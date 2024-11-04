@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct V1UserInformation {
     pub id: i64,
     pub is_active: bool,
@@ -22,7 +23,7 @@ pub struct V1UserInformation {
     pub friends: Vec<Friends>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Friends {
     pub id: String,
     pub name: String,
@@ -30,7 +31,8 @@ pub struct Friends {
 
 // ************************************************************************** //
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct V2UserInformation {
     pub id: i64,
     pub account_information: AccountInformation,
@@ -40,14 +42,16 @@ pub struct V2UserInformation {
     pub profile: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct AccountInformation {
     pub is_active: bool,
     pub registered: String,
     pub balance: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct UserInformation {
     pub first_name: String,
     pub last_name: String,
@@ -58,14 +62,16 @@ pub struct UserInformation {
     pub company: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct ContactInformation {
     pub email: String,
     pub phone: String,
     pub address: Address,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct Address {
     pub street: String,
     pub city: String,

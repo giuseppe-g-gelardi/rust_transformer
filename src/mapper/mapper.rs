@@ -6,7 +6,7 @@ use crate::validator::types::{
     V2UserInformation,
 };
 
-pub struct Mapper;
+// pub struct Mapper;
 
 pub fn map_v2_data(data: &V1UserInformation) -> V2UserInformation {
     let user_name = parse_user_name(&data).unwrap();
