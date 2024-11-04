@@ -1,18 +1,14 @@
-// mod mapper;
-// mod validator;
-
-// use rust_transformer::{mapper::mapper, validator::validator};
-
 mod mapper;
 mod validator;
 
 use std::{fs::File, io::Read, time::Duration};
 
-// use mapper::mapper::map_v2_data;
 use validator::{
-    types::{V1UserInformation, V2UserInformation},
+    types::{V1UserInformation /*, V2UserInformation*/},
     validator::ModelValidator,
 };
+
+use self::validator::validator::Validator;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -32,17 +28,12 @@ fn main() {
 
 fn simulate_kinesis_stream(records: Vec<V1UserInformation>, interval: Duration) {
     for record in records {
-        // let v2_data = map_v2_data(record);
-        // let validator = ModelValidator::new();
-        // match validator.validate::<V2UserInformation>(&v2_data) {
-        println!("Record: {:?} is valid", record);
-        //     Ok(_) => {
-        //         println!("Record: {:?} is valid", v2_data);
-        //     }
-        //     Err(e) => {
-        //         eprintln!("Record: {:?} is invalid, Error: {:?}", v2_data, e);
-        //     }
-        // }
+        let is_valid = ModelValidator.validate_v1(&record);
+        if !is_valid {
+            eprintln!("Record is invalid");
+        }
+        println!("Record {:?} is valid,\n\n", record.id);
+
         std::thread::sleep(interval);
     }
 }

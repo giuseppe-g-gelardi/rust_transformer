@@ -28,13 +28,22 @@ impl Validator for ModelValidator {
     }
 }
 
+// ********************************* tests ******************************** //
+// ********************************* tests ******************************** //
+// ********************************* tests ******************************** //
+// ********************************* tests ******************************** //
+// ********************************* tests ******************************** //
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    // Tests for V1UserInformation
     #[test]
     fn test_validate_v1() {
+        // validate the V1UserInformation struct against Correct data
+        // -- SHOULD PASS --
         let data = V1UserInformation::default();
+
         let validator = ModelValidator;
         assert_eq!(validator.validate_v1(&data), true);
     }
@@ -47,4 +56,25 @@ mod tests {
         let validator = ModelValidator;
         assert!(validator.validate_v1(&data));
     }
+
+    #[test]
+    #[should_panic(expected = "Name is empty, dropping record")]
+    fn test_validate_v1_name() {
+        let mut data = V1UserInformation::default();
+        data.name = String::new();
+        let validator = ModelValidator;
+        assert!(validator.validate_v1(&data));
+    }
+
+    #[test]
+    #[should_panic(expected = "Email is empty, dropping record")]
+    fn test_validate_v1_email() {
+        let mut data = V1UserInformation::default();
+        data.email = String::new();
+        let validator = ModelValidator;
+        assert!(validator.validate_v1(&data));
+    }
+
+    // Tests for V2UserInformation
+    // soon....
 }

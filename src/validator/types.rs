@@ -80,6 +80,11 @@ pub struct Address {
 }
 
 // ********************************* helpers ******************************** //
+// trait TestMocks {
+//     fn default() -> Self;
+// }
+//
+// impl TestMocks for V1UserInformation {
 impl V1UserInformation {
     pub fn default() -> Self {
         V1UserInformation {
@@ -126,6 +131,7 @@ impl V1UserInformation {
     }
 }
 
+// impl TestMocks for V2UserInformation {
 impl V2UserInformation {
     pub fn default() -> Self {
         V2UserInformation {
