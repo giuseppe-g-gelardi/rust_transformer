@@ -30,9 +30,11 @@ fn simulate_kinesis_stream(records: Vec<V1UserInformation>, interval: Duration) 
     for record in records {
         let is_valid = ModelValidator.validate_v1(&record);
         if !is_valid {
-            eprintln!("Record is invalid");
+            eprintln!("Record {:?} is invalid, dropping record\n\n", record.id);
+            continue;
         }
         println!("Record {:?} is valid,\n\n", record.id);
+        // map to V2UserInformation here, i think?
 
         std::thread::sleep(interval);
     }
