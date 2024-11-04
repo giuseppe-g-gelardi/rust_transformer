@@ -1,12 +1,8 @@
-// use std::error::Error;
-
 use super::super::validator::validator::{ModelValidator, Validator};
 use crate::validator::types::{
     AccountInformation, Address, ContactInformation, UserInformation, V1UserInformation,
     V2UserInformation,
 };
-
-// pub struct Mapper;
 
 pub fn map_v2_data(data: &V1UserInformation) -> V2UserInformation {
     let user_name = parse_user_name(&data).unwrap();
@@ -50,6 +46,7 @@ pub fn map_v2_data(data: &V1UserInformation) -> V2UserInformation {
     v2_data
 }
 
+#[derive(Debug, PartialEq)]
 struct ParsedName {
     first_name: String,
     last_name: String,
@@ -87,6 +84,11 @@ fn parse_address(address: &V1UserInformation) -> Option<Address> {
     None
 }
 
+// ********************************* tests ******************************** //
+// ********************************* tests ******************************** //
+// ********************************* tests ******************************** //
+// ********************************* tests ******************************** //
+// ********************************* tests ******************************** //
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -100,6 +102,14 @@ mod tests {
     }
 
     #[test]
+    fn test_parse_user_name_invalid() {
+        let mut data = V1UserInformation::default();
+        data.name = "Tommie".to_string();
+        let parsed_name = parse_user_name(&data);
+        assert_eq!(parsed_name, None);
+    }
+
+    #[test]
     fn test_parse_address() {
         let data = V1UserInformation::default();
 
@@ -108,6 +118,14 @@ mod tests {
         assert_eq!(parsed_address.city, "Aurora");
         assert_eq!(parsed_address.state, "Connecticut");
         assert_eq!(parsed_address.zip, 5047);
+    }
+
+    #[test]
+    fn test_parse_address_invalid() {
+        let mut data = V1UserInformation::default();
+        data.address = "251 Osborn Street, Aurora, Connecticut".to_string();
+        let parsed_address = parse_address(&data);
+        assert_eq!(parsed_address, None);
     }
 
     #[test]

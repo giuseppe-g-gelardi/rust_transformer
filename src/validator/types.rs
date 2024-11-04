@@ -80,12 +80,13 @@ pub struct Address {
 }
 
 // ********************************* helpers ******************************** //
-// trait TestMocks {
+// pub trait TestMocks {
 //     fn default() -> Self;
 // }
-//
+
 // impl TestMocks for V1UserInformation {
 impl V1UserInformation {
+    #[cfg(test)]
     pub fn default() -> Self {
         V1UserInformation {
             id: 2377983216433421, // this actually fails when the id is not correct, so thats good
@@ -133,6 +134,7 @@ impl V1UserInformation {
 
 // impl TestMocks for V2UserInformation {
 impl V2UserInformation {
+    #[cfg(test)]
     pub fn default() -> Self {
         V2UserInformation {
         id: 2377983216433421,

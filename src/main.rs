@@ -6,19 +6,15 @@ use std::{fs::File, io::Read, time::Duration};
 use validator::{
     types::{V1UserInformation /*, V2UserInformation*/},
     validator::ModelValidator,
+    validator::Validator,
 };
 
-use self::validator::validator::Validator;
+use mapper::mapper::map_v2_data;
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    if args.len() < 2 {
-        eprintln!("Usage: {} <small|medium|large>", args[0]);
-        std::process::exit(1);
-    }
-    let size = args[1].as_str();
+    let size = parse_args();
 
-    let (path, interval) = dataset(size);
+    let (path, interval) = dataset(&size);
 
     match read_json_file(&path) {
         Ok(data) => simulate_kinesis_stream(data, interval),
@@ -33,11 +29,22 @@ fn simulate_kinesis_stream(records: Vec<V1UserInformation>, interval: Duration) 
             eprintln!("Record {:?} is invalid, dropping record\n\n", record.id);
             continue;
         }
-        println!("Record {:?} is valid,\n\n", record.id);
-        // map to V2UserInformation here, i think?
+        let v2_data = map_v2_data(&record);
+        println!("Record {:?} is valid: ", record.id);
+        println!("{:?}\n\n", v2_data);
 
         std::thread::sleep(interval);
     }
+}
+
+fn parse_args() -> String {
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() < 2 {
+        eprintln!("Usage: {} <small|medium|large>", args[0]);
+        std::process::exit(1);
+    }
+    let size = args[1].as_str();
+    size.to_string()
 }
 
 fn read_json_file(file_path: &str) -> Result<Vec<V1UserInformation>, Box<dyn std::error::Error>> {

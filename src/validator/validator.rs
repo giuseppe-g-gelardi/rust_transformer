@@ -1,4 +1,4 @@
-use super::types::{Friends, V1UserInformation, V2UserInformation};
+use super::types::{V1UserInformation, V2UserInformation};
 
 pub trait Validator {
     fn validate_v1(&self, data: &V1UserInformation) -> bool;
@@ -9,28 +9,24 @@ pub struct ModelValidator;
 impl Validator for ModelValidator {
     fn validate_v1(&self, data: &V1UserInformation) -> bool {
         if data.id.to_string().len() != 16 || data.id.to_string().chars().nth(0).unwrap() != '2' {
-            // panic!("ID is empty or the incorrect format, dropping record");
             eprintln!("ID is empty or the incorrect format, dropping record");
-            return false
+            return false;
         }
         if data.name.is_empty() {
-            // panic!("Name is empty, dropping record");
             eprintln!("Name is empty, dropping record");
-            return false
+            return false;
         }
         if data.email.is_empty() {
-            // panic!("Email is empty, dropping record");
             eprintln!("Email is empty, dropping record");
-            return false
+            return false;
         }
         true
     }
 
     fn validate_v2(&self, data: &V2UserInformation) -> bool {
         if data.id.to_string().len() != 16 || data.id.to_string().chars().nth(0).unwrap() != '2' {
-            // panic!("ID is empty or the incorrect format, dropping record");
             eprintln!("ID is empty or the incorrect format, dropping record");
-            return false
+            return false;
         }
         true
     }
@@ -51,7 +47,6 @@ mod tests {
         // validate the V1UserInformation struct against Correct data
         // -- SHOULD PASS --
         let data = V1UserInformation::default();
-
         let validator = ModelValidator;
         assert_eq!(validator.validate_v1(&data), true);
     }
