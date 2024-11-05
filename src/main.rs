@@ -1,10 +1,15 @@
 mod mapper;
 mod validator;
 
-use std::{fs::File, io::Read, time::Duration};
+use std::{
+    error::Error,
+    fs::{File, OpenOptions},
+    io::{BufWriter, Read, Write},
+    time::Duration,
+};
 
 use validator::{
-    types::{V1UserInformation /*, V2UserInformation*/},
+    types::{V1UserInformation, V2UserInformation},
     validator::ModelValidator,
     validator::Validator,
 };
@@ -30,11 +35,35 @@ fn simulate_kinesis_stream(records: Vec<V1UserInformation>, interval: Duration) 
             continue;
         }
         let v2_data = map_v2_data(&record);
+        match write_to_file(&v2_data) {
+            Ok(_) => (),
+            Err(e) => eprintln!("Error: {:?}", e),
+        }
+
         println!("Record {:?} is valid: ", record.id);
         println!("{:?}\n\n", v2_data);
 
         std::thread::sleep(interval);
     }
+}
+// this should return a result, nothing for success and an io error for failure
+fn write_to_file(record: &V2UserInformation) -> Result<(), Box<dyn Error>> {
+    // let file = File::create("output.txt")?;
+    // serde_json::to_writer(file, &record)?;
+    // Ok(())
+    let file = OpenOptions::new()
+        .append(true)
+        .create(true)
+        .write(true)
+        .open("./mock_data/output.json")?;
+
+    let mut writer = BufWriter::new(file);
+    let record_json = serde_json::to_string(&record)?;
+
+    writeln!(writer, "{}", record_json)?;
+    writer.flush()?;
+
+    Ok(())
 }
 
 fn parse_args() -> String {
