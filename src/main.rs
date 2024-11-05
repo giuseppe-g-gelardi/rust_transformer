@@ -30,22 +30,40 @@ fn main() {
 
 fn simulate_kinesis_stream(records: Vec<V1UserInformation>, interval: Duration) {
     for record in records {
-        let is_valid = ModelValidator.validate_v1(&record);
-        if !is_valid {
-            eprintln!("Record {:?} is invalid, dropping record\n\n", record.id);
-            continue;
+        if let Err(e) = simulate_lambda_execution(&record) {
+            eprintln!("Error processing record {:#?}: {:#?}", record.id, e)
         }
-        let v2_data = map_v2_data(&record);
-        match write_to_file(&v2_data) {
-            Ok(_) => (),
-            Err(e) => eprintln!("Error: {:?}", e),
-        }
-
-        println!("Record {:?} is valid: ", record.id);
-        println!("{:?}\n\n", v2_data);
 
         sleep(interval);
     }
+}
+
+fn simulate_lambda_execution(record: &V1UserInformation) -> Result<(), Box<dyn Error>> {
+    if !ModelValidator.validate_v1(record) {
+        eprintln!("Record {:?} is invalid, dropping record\n\n", record.id);
+    }
+
+    let v2_data = map_v2_data(&record)?;
+
+    match write_to_file(&v2_data) {
+        Ok(_) => {
+            println!("Record {:?} is valid\n{:?}\n\n", record.id, v2_data); // {:#?} pretty print
+            ()
+        }
+        Err(e) => eprintln!("Error: {:?}", e),
+    }
+
+    Ok(())
+}
+
+fn read_json_file(file_path: &str) -> Result<Vec<V1UserInformation>, Box<dyn Error>> {
+    let mut file = File::open(file_path)?;
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)?;
+
+    let v1_data: Vec<V1UserInformation> = serde_json::from_str(&contents)?;
+
+    Ok(v1_data)
 }
 
 fn write_to_file(record: &V2UserInformation) -> Result<(), Box<dyn Error>> {
@@ -62,16 +80,6 @@ fn write_to_file(record: &V2UserInformation) -> Result<(), Box<dyn Error>> {
     writer.flush()?;
 
     Ok(())
-}
-
-fn read_json_file(file_path: &str) -> Result<Vec<V1UserInformation>, Box<dyn Error>> {
-    let mut file = File::open(file_path)?;
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
-
-    let v1_data: Vec<V1UserInformation> = serde_json::from_str(&contents)?;
-
-    Ok(v1_data)
 }
 
 fn parse_args() -> String {

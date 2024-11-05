@@ -4,7 +4,10 @@ use crate::validator::types::{
     V2UserInformation,
 };
 
-pub fn map_v2_data(data: &V1UserInformation) -> V2UserInformation {
+use std::error::Error;
+
+// pub fn map_v2_data(data: &V1UserInformation) -> V2UserInformation {
+pub fn map_v2_data(data: &V1UserInformation) -> Result<V2UserInformation, Box<dyn Error>> {
     let user_name = parse_user_name(&data).unwrap();
     let address = parse_address(&data).unwrap();
 
@@ -38,12 +41,17 @@ pub fn map_v2_data(data: &V1UserInformation) -> V2UserInformation {
         profile: data.about.to_string(),
     };
 
-    let is_valid: bool = ModelValidator.validate_v2(&v2_data).try_into().unwrap();
-    if !is_valid {
+    // let is_valid: bool = ModelValidator.validate_v2(&v2_data).try_into().unwrap();
+    // if !is_valid {
+    //     eprintln!("V2 data is invalid");
+    // };
+    if !ModelValidator.validate_v2(&v2_data) {
         eprintln!("V2 data is invalid");
-    };
+        return Err("V2 data is invalid".into());
+    }
 
-    v2_data
+    // v2_data
+    Ok(v2_data)
 }
 
 #[derive(Debug, PartialEq)]
@@ -131,8 +139,7 @@ mod tests {
     #[test]
     fn test_map_v2_data() {
         let data = V1UserInformation::default();
-        let mapped_data = map_v2_data(&data);
-
+        let mapped_data = map_v2_data(&data).expect("V2 data is invalid");
         assert_eq!(mapped_data, V2UserInformation::default())
     }
 }
