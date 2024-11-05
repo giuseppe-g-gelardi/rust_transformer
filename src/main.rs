@@ -5,6 +5,7 @@ use std::{
     error::Error,
     fs::{File, OpenOptions},
     io::{BufWriter, Read, Write},
+    thread::sleep,
     time::Duration,
 };
 
@@ -43,9 +44,10 @@ fn simulate_kinesis_stream(records: Vec<V1UserInformation>, interval: Duration) 
         println!("Record {:?} is valid: ", record.id);
         println!("{:?}\n\n", v2_data);
 
-        std::thread::sleep(interval);
+        sleep(interval);
     }
 }
+
 fn write_to_file(record: &V2UserInformation) -> Result<(), Box<dyn Error>> {
     let file = OpenOptions::new()
         .append(true)
