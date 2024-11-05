@@ -52,12 +52,17 @@ pub fn dataset(size: &str) -> (String, Duration) {
     let small = String::from("./mock_data/small.json");
     let medium = String::from("./mock_data/medium.json");
     let large = String::from("./mock_data/large.json");
-    // expand to include datasets with invalid data
+    let small_invalid = String::from("./mock_data/small_invalid.json");
+    let medium_invalid = String::from("./mock_data/medium_invalid.json");
+    let large_invalid = String::from("./mock_data/large_invalid.json");
 
     match size {
         "small" => (small, Duration::from_millis(500)),
         "medium" => (medium, Duration::from_millis(100)),
         "large" => (large, Duration::from_secs(10)),
+        "small_invalid" => (small_invalid, Duration::from_millis(500)),
+        "medium_invalid" => (medium_invalid, Duration::from_millis(100)),
+        "large_invalid" => (large_invalid, Duration::from_secs(10)),
         _ => (small, Duration::from_millis(500)),
     }
 }
@@ -100,6 +105,7 @@ mod tests {
     }
     // ********************** end parse args tests ************************** //
 
+    // ******************** start dataset tests ***************************** //
     #[test]
     fn test_dataset() {
         let (path, interval) = dataset("small");
@@ -108,12 +114,26 @@ mod tests {
     }
 
     #[test]
-    fn test_read_json_file() {
+    fn test_read_json_file_small() {
         let data = read_json_file("./mock_data/small.json").unwrap();
         assert_eq!(data.len(), 10);
     }
 
     #[test]
+    fn test_read_json_file_medium() {
+        let data = read_json_file("./mock_data/medium.json").unwrap();
+        assert_eq!(data.len(), 100);
+    }
+
+    #[test]
+    fn test_read_json_file_large() {
+        let data = read_json_file("./mock_data/large.json").unwrap();
+        assert_eq!(data.len(), 1000);
+    }
+    // *********************** end dataset tests **************************** //
+
+    #[test]
+    #[ignore = "dont want to write to file during tests"]
     fn test_write_to_file() {
         let record = V2UserInformation::default();
         assert!(write_to_file(&record).is_ok());

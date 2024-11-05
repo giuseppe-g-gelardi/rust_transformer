@@ -4,6 +4,13 @@ use crate::validator::types::{
     V2UserInformation,
 };
 
+// update parsed_user_name and parsed_address to return Result instead of Option
+// when running invalid data, the error:
+// // iName is not in the correct format
+// // thread 'main' panicked at src/mapper/mapper.rs:10:44:
+// // called `Option::unwrap()` on a `None` value
+// // note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
 use std::error::Error;
 
 pub fn map_v2_data(data: &V1UserInformation) -> Result<V2UserInformation, Box<dyn Error>> {
