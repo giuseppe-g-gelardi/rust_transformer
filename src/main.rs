@@ -2,23 +2,11 @@ mod mapper;
 mod utils;
 mod validator;
 
-use std::{
-    error::Error,
-    // fs::{File, OpenOptions},
-    // io::{BufWriter, Read, Write},
-    thread::sleep,
-    time::Duration,
-};
-
-use validator::{
-    types::{V1UserInformation /*, V2UserInformation*/},
-    validator::ModelValidator,
-    validator::Validator,
-};
+use std::{error::Error, thread::sleep, time::Duration};
 
 use mapper::mapper::map_v2_data;
-
 use utils::file_helpers::{dataset, parse_args, read_json_file, write_to_file};
+use validator::{types::V1UserInformation, validator::ModelValidator, validator::Validator};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let size = parse_args();
