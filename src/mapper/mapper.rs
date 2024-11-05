@@ -14,8 +14,11 @@ use crate::validator::types::{
 use std::error::Error;
 
 pub fn map_v2_data(data: &V1UserInformation) -> Result<V2UserInformation, Box<dyn Error>> {
-    let user_name = parse_user_name(&data).unwrap();
-    let address = parse_address(&data).unwrap();
+    // let user_name = parse_user_name(&data).unwrap();
+    // let address = parse_address(&data).unwrap();
+
+    let user_name = parse_user_name(&data)?;
+    let address = parse_address(&data)?;
 
     let v2_data = V2UserInformation {
         id: data.id,
@@ -60,37 +63,41 @@ struct ParsedName {
     first_name: String,
     last_name: String,
 }
-fn parse_user_name(name: &V1UserInformation) -> Option<ParsedName> {
+// fn parse_user_name(name: &V1UserInformation) -> Option<ParsedName> {
+fn parse_user_name(name: &V1UserInformation) -> Result<ParsedName, Box<dyn Error>> {
     let split_name: Vec<&str> = name.name.split_whitespace().collect();
     match split_name.len() {
-        2 => Some(ParsedName {
+        2 => Ok(ParsedName {
             first_name: split_name[0].to_string(),
             last_name: split_name[1].to_string(),
         }),
-        _ => {
-            eprintln!("Name is not in the correct format");
-            None
-        }
+        _ => Err("Name is not in the correct format".into()),
+        // {
+        // eprintln!("Name is not in the correct format");
+        // None
+        // }
     }
 }
 
-fn parse_address(address: &V1UserInformation) -> Option<Address> {
+// fn parse_address(address: &V1UserInformation) -> Option<Address> {
+fn parse_address(address: &V1UserInformation) -> Result<Address, Box<dyn Error>> {
     let split_address: Vec<&str> = address.address.split(",").map(|s| s.trim()).collect();
     if split_address.len() == 4 {
         if let Ok(zip) = split_address[3].parse::<i32>() {
-            return Some(Address {
+            Ok(Address {
                 street: split_address[0].to_string(),
                 city: split_address[1].to_string(),
                 state: split_address[2].to_string(),
                 zip,
-            });
+            })
         } else {
-            eprintln!("ZIP code is not a valid number");
+            Err("ZIP code is not a valid number".into())
+            // eprintln!("ZIP code is not a valid number");
         }
     } else {
-        eprintln!("Address is not in the correct format");
+        Err("Address is not in the correct format".into())
+        // eprintln!("Address is not in the correct format");
     }
-    None
 }
 
 // ********************************* tests ******************************** //
@@ -115,7 +122,10 @@ mod tests {
         let mut data = V1UserInformation::default();
         data.name = "Tommie".to_string();
         let parsed_name = parse_user_name(&data);
-        assert_eq!(parsed_name, None);
+
+        // assert_eq!(parsed_name, None);
+        assert!(parsed_name.is_err());
+        assert_eq!(parsed_name.unwrap_err().to_string(), "Name is not in the correct format");
     }
 
     #[test]
@@ -134,7 +144,10 @@ mod tests {
         let mut data = V1UserInformation::default();
         data.address = "251 Osborn Street, Aurora, Connecticut".to_string();
         let parsed_address = parse_address(&data);
-        assert_eq!(parsed_address, None);
+
+        // assert_eq!(parsed_address, None);
+        assert!(parsed_address.is_err());
+        assert_eq!(parsed_address.unwrap_err().to_string(), "Address is not in the correct format");
     }
 
     #[test]
