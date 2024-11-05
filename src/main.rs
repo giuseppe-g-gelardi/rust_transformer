@@ -25,10 +25,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let (path, interval) = dataset(&size);
 
-    // match read_json_file(&path) {
-    //     Ok(data) => simulate_kinesis_stream(data, interval),
-    //     Err(e) => eprintln!("Error: {:?}", e),
-    // }
     let data = read_json_file(&path)?;
     simulate_kinesis_stream(data, interval);
 
@@ -63,51 +59,23 @@ fn simulate_lambda_execution(record: &V1UserInformation) -> Result<(), Box<dyn E
     Ok(())
 }
 
-// fn read_json_file(file_path: &str) -> Result<Vec<V1UserInformation>, Box<dyn Error>> {
-//     let mut file = File::open(file_path)?;
-//     let mut contents = String::new();
-//     file.read_to_string(&mut contents)?;
-//
-//     let v1_data: Vec<V1UserInformation> = serde_json::from_str(&contents)?;
-//
-//     Ok(v1_data)
-// }
-//
-// fn write_to_file(record: &V2UserInformation) -> Result<(), Box<dyn Error>> {
-//     let file = OpenOptions::new()
-//         .append(true)
-//         .create(true)
-//         .write(true)
-//         .open("./mock_data/output.json")?;
-//
-//     let mut writer = BufWriter::new(file);
-//     let record_json = serde_json::to_string(&record)?;
-//
-//     writeln!(writer, "{}", record_json)?;
-//     writer.flush()?;
-//
-//     Ok(())
-// }
-//
-// fn parse_args() -> String {
-//     let args: Vec<String> = std::env::args().collect();
-//     if args.len() < 2 {
-//         eprintln!("Usage: {} <small|medium|large>", args[0]);
-//         std::process::exit(1);
-//     }
-//     let size = args[1].as_str();
-//     size.to_string()
-// }
-//
-// fn dataset(size: &str) -> (String, Duration) {
-//     let small = String::from("./mock_data/small.json");
-//     let medium = String::from("./mock_data/medium.json");
-//     let large = String::from("./mock_data/large.json");
-//
-//     match size {
-//         "small" => (small, Duration::from_millis(500)),
-//         "medium" => (medium, Duration::from_millis(100)),
-//         "large" => (large, Duration::from_secs(10)),
-//         _ => (small, Duration::from_millis(500)),
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_simulate_lambda_execution() {
+        let data = V1UserInformation::default();
+        match simulate_lambda_execution(&data) {
+            Ok(_) => (),
+            Err(e) => eprintln!("Error: {:?}", e),
+        }
+    }
+
+    #[test]
+    fn test_simulate_kinesis_stream() {
+        let data = vec![V1UserInformation::default()];
+        let interval = Duration::from_millis(500);
+        simulate_kinesis_stream(data, interval);
+    }
+}
