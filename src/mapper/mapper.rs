@@ -4,19 +4,9 @@ use crate::validator::types::{
     V2UserInformation,
 };
 
-// update parsed_user_name and parsed_address to return Result instead of Option
-// when running invalid data, the error:
-// // iName is not in the correct format
-// // thread 'main' panicked at src/mapper/mapper.rs:10:44:
-// // called `Option::unwrap()` on a `None` value
-// // note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-
 use std::error::Error;
 
 pub fn map_v2_data(data: &V1UserInformation) -> Result<V2UserInformation, Box<dyn Error>> {
-    // let user_name = parse_user_name(&data).unwrap();
-    // let address = parse_address(&data).unwrap();
-
     let user_name = parse_user_name(&data)?;
     let address = parse_address(&data)?;
 
@@ -63,7 +53,7 @@ struct ParsedName {
     first_name: String,
     last_name: String,
 }
-// fn parse_user_name(name: &V1UserInformation) -> Option<ParsedName> {
+
 fn parse_user_name(name: &V1UserInformation) -> Result<ParsedName, Box<dyn Error>> {
     let split_name: Vec<&str> = name.name.split_whitespace().collect();
     match split_name.len() {
@@ -72,14 +62,9 @@ fn parse_user_name(name: &V1UserInformation) -> Result<ParsedName, Box<dyn Error
             last_name: split_name[1].to_string(),
         }),
         _ => Err("Name is not in the correct format".into()),
-        // {
-        // eprintln!("Name is not in the correct format");
-        // None
-        // }
     }
 }
 
-// fn parse_address(address: &V1UserInformation) -> Option<Address> {
 fn parse_address(address: &V1UserInformation) -> Result<Address, Box<dyn Error>> {
     let split_address: Vec<&str> = address.address.split(",").map(|s| s.trim()).collect();
     if split_address.len() == 4 {
@@ -92,11 +77,9 @@ fn parse_address(address: &V1UserInformation) -> Result<Address, Box<dyn Error>>
             })
         } else {
             Err("ZIP code is not a valid number".into())
-            // eprintln!("ZIP code is not a valid number");
         }
     } else {
         Err("Address is not in the correct format".into())
-        // eprintln!("Address is not in the correct format");
     }
 }
 
@@ -123,16 +106,18 @@ mod tests {
         data.name = "Tommie".to_string();
         let parsed_name = parse_user_name(&data);
 
-        // assert_eq!(parsed_name, None);
         assert!(parsed_name.is_err());
-        assert_eq!(parsed_name.unwrap_err().to_string(), "Name is not in the correct format");
+        assert_eq!(
+            parsed_name.unwrap_err().to_string(),
+            "Name is not in the correct format"
+        );
     }
 
     #[test]
     fn test_parse_address() {
         let data = V1UserInformation::default();
-
         let parsed_address = parse_address(&data).unwrap();
+
         assert_eq!(parsed_address.street, "251 Osborn Street");
         assert_eq!(parsed_address.city, "Aurora");
         assert_eq!(parsed_address.state, "Connecticut");
@@ -145,9 +130,11 @@ mod tests {
         data.address = "251 Osborn Street, Aurora, Connecticut".to_string();
         let parsed_address = parse_address(&data);
 
-        // assert_eq!(parsed_address, None);
         assert!(parsed_address.is_err());
-        assert_eq!(parsed_address.unwrap_err().to_string(), "Address is not in the correct format");
+        assert_eq!(
+            parsed_address.unwrap_err().to_string(),
+            "Address is not in the correct format"
+        );
     }
 
     #[test]
