@@ -33,6 +33,23 @@ pub fn write_to_file(record: &V2UserInformation) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+
+pub fn write_encoded_data_to_file(record: &str) -> Result<(), Box<dyn Error>> {
+    let file = OpenOptions::new()
+        .append(true)
+        .create(true)
+        .write(true)
+        .open("./mock_data/output.json")?;
+
+    let mut writer = BufWriter::new(file);
+    let record_json = serde_json::to_string(&record)?;
+
+    writeln!(writer, "{}", record_json)?;
+    writer.flush()?;
+
+    Ok(())
+}
+
 pub fn parse_args() -> String {
     parse_args_from(std::env::args().collect()).unwrap_or_else(|err| {
         eprintln!("{}", err);

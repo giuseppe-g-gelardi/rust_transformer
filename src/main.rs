@@ -2,10 +2,13 @@ mod mapper;
 mod utils;
 mod validator;
 
+// use base64::prelude::*;
 use std::{error::Error, thread::sleep, time::Duration};
 
 use mapper::mapper::map_v2_data;
-use utils::file_helpers::{dataset, parse_args, read_json_file, write_to_file};
+use utils::file_helpers::{
+    dataset, parse_args, read_json_file, /*write_encoded_data_to_file, */ write_to_file,
+};
 use validator::{types::V1UserInformation, validator::ModelValidator, validator::Validator};
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -18,6 +21,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
+
+// fn encode_data(data: &str) -> String {
+//     let encoded = BASE64_STANDARD.encode(&data);
+//     encoded
+// }
 
 fn simulate_kinesis_stream(records: Vec<V1UserInformation>, interval: Duration) {
     for record in records {
@@ -36,6 +44,13 @@ fn simulate_lambda_execution(record: &V1UserInformation) -> Result<(), Box<dyn E
     }
 
     let v2_data = map_v2_data(&record)?;
+    // let serialized = serde_json::to_string(&v2_data)?;
+    // let serialized = serde_json::to_string(&record)?;
+    // let encoded_data = encode_data(&serialized);
+    // match write_encoded_data_to_file(&encoded_data) {
+    //     Ok(_) => (),
+    //     Err(e) => eprintln!("Error: {:?}", e),
+    // }
 
     match write_to_file(&v2_data) {
         Ok(_) => {
