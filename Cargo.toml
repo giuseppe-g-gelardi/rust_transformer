@@ -10,10 +10,7 @@ serde_derive = "1.0.188"
 base64 = "0.22.1"
 
 
-[[bin]] # `cargo run --bin main "size"`
-name = "main"
-path = "src/main.rs"
+# [[bin]] # `cargo run --bin main "size"`
+# name = "main"
+# path = "src/main.rs"
 
-[[bin]] # `cargo run --bin encode`
-name = "encode"
-path = "./encode/src/main.rs"
