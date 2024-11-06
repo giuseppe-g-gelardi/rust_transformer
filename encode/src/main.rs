@@ -117,7 +117,7 @@ pub struct KinesisRecord {
 pub struct Kinesis {
     pub data: String,
     pub partition_key: String,
-    // pub kinesis_schema_version: String,
+    pub kinesis_schema_version: String,
     pub sequence_number: String,
     pub approximate_arrival_timestamp: f64,
 }
