@@ -89,6 +89,12 @@ mod tests {
     }
 
     #[test]
+    fn test_parse_args_valid_large() {
+        let args = vec!["program_name".to_string(), "large".to_string()];
+        assert_eq!(parse_args_from(args).unwrap(), "large");
+    }
+
+    #[test]
     fn test_parse_args_invalid_missing_argument() {
         let args = vec!["program_name".to_string()];
         assert!(parse_args_from(args).is_err());

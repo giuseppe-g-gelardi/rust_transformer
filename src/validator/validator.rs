@@ -9,10 +9,6 @@ pub trait Validator {
 pub struct ModelValidator;
 impl Validator for ModelValidator {
     fn validate_v1(&self, data: &V1UserInformation) -> bool {
-        // if data.id.to_string().len() != 16 || data.id.to_string().chars().nth(0).unwrap() != '2' {
-        //     eprintln!("ID is empty or the incorrect format, dropping record");
-        //     return false;
-        // }
         if !self.valid_userid(data.id) {
             eprintln!("ID is empty or the incorrect format, dropping record");
             return false;
@@ -29,10 +25,6 @@ impl Validator for ModelValidator {
     }
 
     fn validate_v2(&self, data: &V2UserInformation) -> bool {
-        // if data.id.to_string().len() != 16 || data.id.to_string().chars().nth(0).unwrap() != '2' {
-        //     eprintln!("ID is empty or the incorrect format, dropping record");
-        //     return false;
-        // }
         if !self.valid_userid(data.id) {
             eprintln!("ID is empty or the incorrect format, dropping record");
             return false;

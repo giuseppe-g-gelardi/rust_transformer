@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let (path, interval) = dataset(&size);
 
     let data = read_json_file(&path)?;
-    simulate_kinesis_stream(data, interval);
+    simulate_kinesis_stream(data, interval); // init mock kinesis stream
 
     Ok(())
 }
@@ -22,6 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn simulate_kinesis_stream(records: Vec<V1UserInformation>, interval: Duration) {
     for record in records {
         if let Err(e) = simulate_lambda_execution(&record) {
+            // stream calls lambda
             eprintln!("Error processing record {:#?}: {:#?}", record.id, e)
         }
 
