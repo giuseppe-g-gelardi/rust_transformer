@@ -33,23 +33,22 @@ pub fn write_to_file(record: &V2UserInformation) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-
-pub fn write_encoded_data_to_file(record: &str) -> Result<(), Box<dyn Error>> {
-    let file = OpenOptions::new()
-        .append(true)
-        .create(true)
-        .write(true)
-        .open("./mock_data/output.json")?;
-
-    let mut writer = BufWriter::new(file);
-    let record_json = serde_json::to_string(&record)?;
-
-    writeln!(writer, "{}", record_json)?;
-    writer.flush()?;
-
-    Ok(())
-}
-
+// pub fn write_encoded_data_to_file(record: &str) -> Result<(), Box<dyn Error>> {
+//     let file = OpenOptions::new()
+//         .append(true)
+//         .create(true)
+//         .write(true)
+//         .open("./mock_data/output.json")?;
+//
+//     let mut writer = BufWriter::new(file);
+//     let record_json = serde_json::to_string(&record)?;
+//
+//     writeln!(writer, "{}", record_json)?;
+//     writer.flush()?;
+//
+//     Ok(())
+// }
+//
 pub fn parse_args() -> String {
     parse_args_from(std::env::args().collect()).unwrap_or_else(|err| {
         eprintln!("{}", err);
@@ -72,6 +71,7 @@ pub fn dataset(size: &str) -> (String, Duration) {
     let small_invalid = String::from("./mock_data/small_invalid.json");
     let medium_invalid = String::from("./mock_data/medium_invalid.json");
     let large_invalid = String::from("./mock_data/large_invalid.json");
+    let kinesis_input = String::from("./mock_data/input.json");
 
     match size {
         "small" => (small, Duration::from_millis(500)),
@@ -80,6 +80,7 @@ pub fn dataset(size: &str) -> (String, Duration) {
         "small_invalid" => (small_invalid, Duration::from_millis(500)),
         "medium_invalid" => (medium_invalid, Duration::from_millis(100)),
         "large_invalid" => (large_invalid, Duration::from_secs(10)),
+        "input" => (kinesis_input, Duration::from_millis(500)),
         _ => (small, Duration::from_millis(500)),
     }
 }
