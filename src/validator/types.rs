@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct V1UserInformation {
     pub id: i64,
@@ -23,7 +23,7 @@ pub struct V1UserInformation {
     pub friends: Vec<Friends>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Friends {
     pub id: String,
     pub name: String,
