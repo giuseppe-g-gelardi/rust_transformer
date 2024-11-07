@@ -6,18 +6,14 @@ mod validator;
 use kinesis::kinesis::KinesisRecord;
 use mapper::mapper::map_v2_data;
 use utils::encoder::{decode_user_info, encode_data};
-use utils::file_helpers::{/*read_kinesis_json_file, */write_output_to_file};
+use utils::file_helpers::write_output_to_file;
 use validator::{types::V1UserInformation, validator::ModelValidator, validator::Validator};
 
-use std::{error::Error/*, thread::sleep, time::Duration*/};
+use std::error::Error;
 
+use lambda_http::{run, service_fn, tracing, Body, Request, Response};
+use serde::Deserialize;
 use serde_json;
-
-// use base64;
-
-// use base64::prelude::*;
-use lambda_http::{run, service_fn, tracing, Body, Request /*, RequestExt*/, Response};
-use serde::{Deserialize /*, Serialize*/};
 use serde_json::Value;
 
 #[tokio::main]
@@ -32,26 +28,6 @@ struct KinesisEvent {
     #[serde(rename = "Records")]
     records: Vec<KinesisRecord>,
 }
-
-fn parse_event_body(event: Request) -> Result<Value, Box<dyn std::error::Error>> {
-    let body_bytes = event.body().as_ref();
-    let event_body: Value = serde_json::from_slice(&body_bytes)?;
-
-    Ok(event_body)
-}
-
-fn parse_kinesis_event(event_body: Value) -> Result<KinesisEvent, Box<dyn std::error::Error>> {
-    let kinesis_event: KinesisEvent = serde_json::from_value(event_body)?;
-
-    Ok(kinesis_event)
-}
-
-// fn decoder(record: &KinesisRecord) -> Vec<u8> {
-//     let decoded_data = BASE64_STANDARD
-//         .decode(&record.kinesis.data)
-//         .unwrap_or_else(|_| vec![]);
-//     decoded_data
-// }
 
 async fn function_handler(event: Request) -> Result<Response<Body>, lambda_http::Error> {
     let event_body = match parse_event_body(event) {
@@ -70,29 +46,16 @@ async fn function_handler(event: Request) -> Result<Response<Body>, lambda_http:
         }
     };
 
-    // if let Err(e) = simulate_kinesis_data_stream(kinesis_event.records) {
-    //     eprintln!("Error processing Kinesis data stream: {:#?}", e);
-    // }
-    // Log and process each Kinesis record
     for mut record in kinesis_event.records {
-        // let decoded_data = decoder(record);
-        // let message =
-        //     String::from_utf8(decoded_data).unwrap_or_else(|_| "Invalid UTF-8".to_string());
-
         if let Err(e) = simulate_kinesis_lambda_trigger(&mut record) {
             eprintln!("Error processing record {:#?}: {:#?}", &record.event_id, e);
         }
-
         println!("Processed kinesis record: {:?}", record.event_id.clone());
     }
-    //
-    // let response_body = format!("Processed {} Kinesis records", records_copy.len());
 
-    // Return a successful response
     let resp = Response::builder()
         .status(200)
         .header("content-type", "text/html")
-        // .body(response_body.into())
         .body(Body::from("Processed Kinesis records"))
         .map_err(Box::new)?;
     Ok(resp)
@@ -129,6 +92,19 @@ fn simulate_kinesis_lambda_trigger(record: &mut KinesisRecord) -> Result<(), Box
     Ok(())
 }
 
+fn parse_event_body(event: Request) -> Result<Value, Box<dyn std::error::Error>> {
+    let body_bytes = event.body().as_ref();
+    let event_body: Value = serde_json::from_slice(&body_bytes)?;
+
+    Ok(event_body)
+}
+
+fn parse_kinesis_event(event_body: Value) -> Result<KinesisEvent, Box<dyn std::error::Error>> {
+    let kinesis_event: KinesisEvent = serde_json::from_value(event_body)?;
+
+    Ok(kinesis_event)
+}
+
 // fn simulate_kinesis_data_stream(records: Vec<KinesisRecord>) -> Result<(), Box<dyn Error>> {
 //     for mut record in records {
 //         if let Err(e) = simulate_kinesis_lambda_trigger(&mut record) {
@@ -155,28 +131,28 @@ fn simulate_kinesis_lambda_trigger(record: &mut KinesisRecord) -> Result<(), Box
 // ********************************** tests ********************************* //
 // ********************************** tests ********************************* //
 // ********************************** tests ********************************* //
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//
-//     #[test]
-//     fn test_simulate_kinesis_data_stream() {
-//         let data = vec![KinesisRecord::default()];
-//         match simulate_kinesis_data_stream(data) {
-//             Ok(_) => (),
-//             Err(e) => eprintln!("Error: {:?}", e),
-//         }
-//     }
-//
-//     #[test]
-//     fn test_simulate_kinesis_lambda_trigger() {
-//         let mut data = KinesisRecord::default();
-//         match simulate_kinesis_lambda_trigger(&mut data) {
-//             Ok(_) => (),
-//             Err(e) => eprintln!("Error: {:?}", e),
-//         }
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    use super::*;
+    //
+    //     #[test]
+    //     fn test_simulate_kinesis_data_stream() {
+    //         let data = vec![KinesisRecord::default()];
+    //         match simulate_kinesis_data_stream(data) {
+    //             Ok(_) => (),
+    //             Err(e) => eprintln!("Error: {:?}", e),
+    //         }
+    //     }
+    //
+    #[test]
+    fn test_simulate_kinesis_lambda_trigger() {
+        let mut data = KinesisRecord::default();
+        match simulate_kinesis_lambda_trigger(&mut data) {
+            Ok(_) => (),
+            Err(e) => eprintln!("Error: {:?}", e),
+        }
+    }
+}
 
 // {
 //     "Records": [
