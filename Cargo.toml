@@ -4,16 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+lambda_http = "0.13.0"
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = { version = "1.0.106", features = ["raw_value"] }
 serde_derive = "1.0.188"
 base64 = "0.22.1"
+tokio = { version = "1", features = ["macros"] }
 
-
-[[bin]] # `cargo run --bin main "size"`
-name = "main"
-path = "src/main.rs"
-
-[[bin]] # `cargo run --bin encode`
-name = "encode"
-path = "./encode/src/main.rs"
