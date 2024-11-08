@@ -25,9 +25,9 @@ pub struct Kinesis {
     pub approximate_arrival_timestamp: f64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct KinesisInput {
+#[derive(Deserialize, Debug)]
+pub struct KinesisEvent {
+    #[serde(rename = "Records")]
     pub records: Vec<KinesisRecord>,
 }
 
