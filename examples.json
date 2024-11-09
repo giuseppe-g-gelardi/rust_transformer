@@ -1,0 +1,108 @@
+-- these are all from the library
+-- example kinesis event 
+{
+	"Records": [
+		{
+		"kinesis": {
+			"kinesisSchemaVersion": "1.0",
+			"partitionKey": "s1",
+			"sequenceNumber": "49568167373333333333333333333333333333333333333333333333",
+			"data": "SGVsbG8gV29ybGQ=",
+			"approximateArrivalTimestamp": 1480641523.477
+		},
+		"eventSource": "aws:kinesis",
+		"eventVersion": "1.0",
+		"eventID": "shardId-000000000000:49568167373333333333333333333333333333333333333333333333",
+		"eventName": "aws:kinesis:record",
+		"invokeIdentityArn": "arn:aws:iam::123456789012:role/LambdaRole",
+		"awsRegion": "us-east-1",
+		"eventSourceARN": "arn:aws:kinesis:us-east-1:123456789012:stream/simple-stream"
+		},
+		{
+		"kinesis": {
+			"kinesisSchemaVersion": "1.0",
+			"partitionKey": "s1",
+			"sequenceNumber": "49568167373333333334444444444444444444444444444444444444",
+			"data": "SGVsbG8gV29ybGQ=",
+			"approximateArrivalTimestamp": 1480841523.477
+		},
+		"eventSource": "aws:kinesis",
+		"eventVersion": "1.0",
+		"eventID": "shardId-000000000000:49568167373333333334444444444444444444444444444444444444",
+		"eventName": "aws:kinesis:record",
+		"invokeIdentityArn": "arn:aws:iam::123456789012:role/LambdaRole",
+		"awsRegion": "us-east-1",
+		"eventSourceARN": "arn:aws:kinesis:us-east-1:123456789012:stream/simple-stream"
+		}
+	]
+}
+
+
+-- firehose
+{
+   "invocationId": "invoked123",
+   "deliveryStreamArn": "aws:lambda:events",
+   "sourceKinesisStreamArn": "arn:aws:kinesis:us-east-1:123456789012:stream/test",
+   "region": "us-west-2",
+   "records": [
+     {
+       "data": "SGVsbG8gV29ybGQ=",
+       "recordId": "record1",
+       "approximateArrivalTimestamp": 1507217624302,
+       "kinesisRecordMetadata": {
+         "shardId": "shardId-000000000000",
+         "partitionKey": "4d1ad2b9-24f8-4b9d-a088-76e9947c317a",
+         "approximateArrivalTimestamp": 1507217624302,
+         "sequenceNumber": "49546986683135544286507457936321625675700192471156785154",
+         "subsequenceNumber": 123456
+       }
+     },
+     {
+       "data": "SGVsbG8gV29ybGQ=",
+       "recordId": "record2",
+       "approximateArrivalTimestamp": 1507217624302,
+       "kinesisRecordMetadata": {
+         "shardId": "shardId-000000000001",
+         "partitionKey": "4d1ad2b9-24f8-4b9d-a088-76e9947c318a",
+         "approximateArrivalTimestamp": 1507217624302,
+         "sequenceNumber": "49546986683135544286507457936321625675700192471156785155",
+         "subsequenceNumber": 123457
+       }
+     }
+   ]
+ }
+
+
+ -- firehose response
+{
+   "records": [
+     {
+       "data": "SGVsbG8gV29ybGQ=",
+       "recordId": "record1",
+       "result": "TRANSFORMED_STATE_OK",
+       "metadata": {
+         "partitionKeys": {}
+       }
+     },
+     {
+       "data": "SGVsbG8gV29ybGQ=",
+       "recordId": "record2",
+       "result": "TRANSFORMED_STATE_DROPPED",
+       "metadata": {
+         "partitionKeys": {}
+       }
+     },
+     {
+       "data": "SGVsbG8gV29ybGQ=",
+       "recordId": "record3",
+       "result": "TransformedStateOk",
+       "metadata": {
+         "partitionKeys": {
+           "iamKey1": "iamValue1",
+           "iamKey2": "iamValue2"
+         }
+       }
+     }
+   ]
+ }
+

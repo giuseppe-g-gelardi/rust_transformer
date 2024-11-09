@@ -1,22 +1,13 @@
-use crate::kinesis::kinesis::{/*KinesisInput, */ KinesisRecord};
 use serde_json;
 use std::{
     error::Error,
-    fs::{/*File, */ OpenOptions},
-    io::{BufWriter /*, Read*/, Write},
+    fs::OpenOptions,
+    io::{BufWriter, Write},
 };
 
-// pub fn read_kinesis_json_file(file_path: &str) -> Result<KinesisInput, Box<dyn Error>> {
-//     let mut file = File::open(file_path)?;
-//     let mut contents = String::new();
-//     file.read_to_string(&mut contents)?;
-//
-//     let data: KinesisInput = serde_json::from_str(&contents)?;
-//
-//     Ok(data)
-// }
+use aws_lambda_events::event::kinesis::KinesisEventRecord;
 
-pub fn write_output_to_file(record: &KinesisRecord) -> Result<(), Box<dyn Error>> {
+pub fn output(record: &KinesisEventRecord) -> Result<(), Box<dyn Error>> {
     let file = OpenOptions::new()
         .append(true)
         .create(true)
@@ -30,25 +21,4 @@ pub fn write_output_to_file(record: &KinesisRecord) -> Result<(), Box<dyn Error>
     writer.flush()?;
 
     Ok(())
-}
-// ******************************* tests ************************************ //
-// ******************************* tests ************************************ //
-// ******************************* tests ************************************ //
-// ******************************* tests ************************************ //
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    // #[test]
-    // fn test_read_kinesis_json_file() {
-    //     let data = read_kinesis_json_file("./mock_data/input.json").unwrap();
-    //     assert_eq!(data.records.len(), 10);
-    // }
-
-    #[test]
-    #[ignore = "dont want to write to file during tests"]
-    fn test_write_output_to_file() {
-        let record = KinesisRecord::default_output();
-        assert!(write_output_to_file(&record).is_ok());
-    }
 }
