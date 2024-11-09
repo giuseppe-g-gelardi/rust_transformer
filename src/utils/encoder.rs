@@ -1,3 +1,4 @@
+// use aws_lambda_events::encodings::Base64Data;
 use base64::prelude::*;
 use std::error::Error;
 
@@ -7,6 +8,7 @@ pub fn encode_data(data: &str) -> String {
     let encoded = BASE64_STANDARD.encode(&data);
     encoded
 }
+
 
 pub fn decode_user_info(data: &str) -> Result<V1UserInformation, Box<dyn Error>> {
     let decoded = BASE64_STANDARD.decode(data)?;
