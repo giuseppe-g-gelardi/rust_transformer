@@ -13,8 +13,9 @@ use validator::{types::V1UserInformation, validator::ModelValidator, validator::
 use std::error::Error;
 
 use lambda_http::{run, service_fn, tracing, Body, Request, Response};
-use serde_json;
 use serde_json::Value;
+
+use std::convert::Into;
 
 #[tokio::main]
 async fn main() -> Result<(), lambda_http::Error> {
@@ -43,6 +44,7 @@ async fn function_handler(event: Request) -> Result<Response<Body>, lambda_http:
         .body(Body::from("Processed Kinesis records"))
         .map_err(Box::new)?;
     Ok(resp)
+    // Ok(create_response(Resp::SUCCESS)?)
 }
 
 fn process_kinesis_events(record: &mut KinesisRecord) -> Result<(), Box<dyn Error>> {
@@ -97,3 +99,61 @@ mod tests {
         }
     }
 }
+
+// // use tokio::test;
+//
+// #[tokio::test]
+// async fn test_function_handler() {
+//         let mock_event_body = json!({
+//             "Records": [
+//                 {
+//                     "eventID": "1",
+//                     "kinesis": {
+//                         "data": "some-base64-encoded-string"
+//                     }
+//                 }
+//             ]
+//         });
+//
+//
+//     // Step 2: Create a mock Request (simulating an HTTP request for Lambda)
+//     let request = Request::default();
+//
+//
+//
+//     // Step 3: Call the handler function
+//     let response = function_handler(request).await.unwrap();
+//
+//     // Step 4: Verify the response
+//     assert_eq!(response.status(), 200);
+//     assert_eq!(response.body(), &Body::from("Processed Kinesis records"));
+// }
+//
+//
+//
+
+// enum Resp {
+//     SUCCESS,
+//     FAILURE,
+// }
+//
+// impl Into<Response<Body>> for Resp {
+//     fn into(self) -> Response<Body> {
+//         match self {
+//             Resp::SUCCESS => Response::builder()
+//                 .status(200)
+//                 .header("content-type", "text/plain")
+//                 .body(Body::from("Success"))
+//                 .unwrap(),
+//             Resp::FAILURE => Response::builder()
+//                 .status(500)
+//                 .header("content-type", "text/plain")
+//                 .body(Body::from("Failure"))
+//                 .unwrap(),
+//         }
+//     }
+// }
+//
+// fn create_response(resp: Resp) -> Result<Response<Body>, lambda_http::Error> {
+//     Ok(resp.into())
+// }
