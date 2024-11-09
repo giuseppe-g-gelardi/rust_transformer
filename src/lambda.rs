@@ -1,23 +1,24 @@
 mod kinesis;
 mod mapper;
-mod utils;
 mod validator;
 
 use mapper::mapper::map_v2_data;
 use serde_json::from_slice;
 use validator::{types::V1UserInformation, validator::ModelValidator, validator::Validator};
-use utils::file_helpers::output;
 
-use std::convert::Into;
 use std::error::Error;
+use std::fs::OpenOptions;
+use std::io::{BufWriter, Write};
 
 use aws_lambda_events::encodings::Base64Data;
-use aws_lambda_events::event::kinesis::{KinesisEvent, KinesisEventRecord as KinesisRecord};
+use aws_lambda_events::event::kinesis::{KinesisEvent, KinesisEventRecord};
 use lambda_runtime::{run, service_fn, tracing, LambdaEvent};
+use serde_json;
+
 //
 // cargo lambda invoke lambda --data-file input.json
 // cargo lambda invoke lambda --data-file record.json
-//
+// cargo lambda invoke lambda --data-file mock.json
 //
 #[tokio::main]
 async fn main() -> Result<(), lambda_runtime::Error> {
@@ -31,8 +32,10 @@ async fn function_handler(event: LambdaEvent<KinesisEvent>) -> Result<(), lambda
         return Ok(());
     }
 
-    let mut records_copy: Vec<KinesisRecord> = event.payload.records.clone();
-    for record in &mut records_copy {
+    tracing::debug!("DEBUGReceived event: {:#?}", event);
+
+    let mut records: Vec<KinesisEventRecord> = event.payload.records.clone();
+    for record in &mut records {
         if let Err(e) = process_kinesis_events(record) {
             eprintln!("Error processing record {:#?}: {:#?}", &record.event_id, e);
         }
@@ -46,41 +49,68 @@ async fn function_handler(event: LambdaEvent<KinesisEvent>) -> Result<(), lambda
     Ok(())
 }
 
-fn process_kinesis_events(record: &mut KinesisRecord) -> Result<(), Box<dyn Error>> {
-    let raw_data: &Vec<u8> = &record.kinesis.data.clone();
+fn process_kinesis_events(record: &mut KinesisEventRecord) -> Result<(), Box<dyn Error>> {
+    let raw_data: &Vec<u8> = &record.kinesis.data;
     let user_info: V1UserInformation = from_slice(&raw_data)?;
+    let validator = ModelValidator;
 
-    if !ModelValidator.validate_v1(&user_info) {
-        eprintln!("Record {:?} is invalid, dropping record\n\n", user_info.id);
-        let error_message = format!("Invalid record: {:?}", user_info.id);
-        return Err(error_message.into());
-    } else {
-        println!("V1 Record {:?} is valid", user_info.id);
-    }
+    validate(
+        &user_info,
+        |data| validator.validate_v1(data),
+        &user_info.id.to_string(),
+        "V1",
+    )?;
 
     let v2_data = map_v2_data(&user_info)?;
-    if !ModelValidator.validate_v2(&v2_data) {
-        eprintln!("Record {:?} is invalid, dropping record", user_info.id);
-        let error_message = format!("Invalid record: {:?}", user_info.id);
-        return Err(error_message.into());
-    } else {
-        println!(
-            "V2 Record {:?} was transformed correctly and is valid",
-            user_info.id
-        );
-    }
+    validate(
+        &v2_data,
+        |data| validator.validate_v2(data),
+        &user_info.id.to_string(),
+        "V2",
+    )?;
 
-    let serialized_v2_data = serde_json::to_string(&v2_data)?;
-    let encoded_v2_data = serialized_v2_data.into_bytes();
-    let base64_encoded_v2_data = Base64Data(encoded_v2_data);
-
+    // Serialize the V2 data and encode it in base64 -- needed?? or does Kinesis do it for us
+    let serialized_v2_data = serde_json::to_string(&v2_data)?.into_bytes();
+    let base64_encoded_v2_data = Base64Data(serialized_v2_data);
     println!("Base64 encoded V2 data: {:?}", record);
-
     record.kinesis.data = base64_encoded_v2_data;
-
-    // write_output_to_file(&record)?; // send back/write to db??
     output(&record)?; // send back/write to db??
-
     Ok(())
 }
 
+fn validate<T>(
+    data: &T,
+    validator: impl Fn(&T) -> bool,
+    data_id: &str,
+    record_type: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    match validator(data) {
+        true => {
+            println!("{} Record {:?} is valid", record_type, data_id);
+            Ok(())
+        }
+        false => {
+            eprintln!(
+                "{} Record {:?} is invalid, dropping record",
+                record_type, data_id
+            );
+            Err("Record is invalid")?
+        }
+    }
+}
+
+pub fn output(record: &KinesisEventRecord) -> Result<(), Box<dyn Error>> {
+    let file = OpenOptions::new()
+        .append(true)
+        .create(true)
+        .write(true)
+        .open("./mock_data/output.json")?;
+
+    let mut writer = BufWriter::new(file);
+    let record_json = serde_json::to_string(&record)?;
+
+    writeln!(writer, "{}", record_json)?;
+    writer.flush()?;
+
+    Ok(())
+}
