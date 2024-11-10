@@ -3,13 +3,13 @@ use super::types::{V1UserInformation, V2UserInformation};
 pub trait Validator {
     fn validate_v1(&self, data: &V1UserInformation) -> bool;
     fn validate_v2(&self, data: &V2UserInformation) -> bool;
-    fn valid_userid(&self, id: i64) -> bool;
+    fn validate_userid(&self, id: i64) -> bool;
 }
 
 pub struct ModelValidator;
 impl Validator for ModelValidator {
     fn validate_v1(&self, data: &V1UserInformation) -> bool {
-        if !self.valid_userid(data.id) {
+        if !self.validate_userid(data.id) {
             eprintln!("ID is empty or the incorrect format, dropping record");
             return false;
         }
@@ -25,7 +25,7 @@ impl Validator for ModelValidator {
     }
 
     fn validate_v2(&self, data: &V2UserInformation) -> bool {
-        if !self.valid_userid(data.id) {
+        if !self.validate_userid(data.id) {
             eprintln!("ID is empty or the incorrect format, dropping record");
             return false;
         }
@@ -45,7 +45,7 @@ impl Validator for ModelValidator {
         true
     }
 
-    fn valid_userid(&self, id: i64) -> bool {
+    fn validate_userid(&self, id: i64) -> bool {
         id.to_string().len() == 16 && id.to_string().chars().nth(0).unwrap() == '2'
     }
 }
@@ -61,15 +61,15 @@ mod tests {
 
     // **************************** test userid ***************************** //
     #[test]
-    fn test_valid_userid() {
+    fn test_validate_userid() {
         let validator = ModelValidator;
-        assert_eq!(validator.valid_userid(2377983216433421), true);
+        assert_eq!(validator.validate_userid(2377983216433421), true);
     }
 
     #[test]
-    fn test_invalid_userid() {
+    fn test_invalidate_userid() {
         let validator = ModelValidator;
-        assert_eq!(validator.valid_userid(1234567890), false);
+        assert_eq!(validator.validate_userid(1234567890), false);
     }
 
     // **************************** v1 Schema ******************************* //

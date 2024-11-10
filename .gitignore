@@ -1,3 +1,6 @@
 /target
 
-/mock_data/additional_data
+.env
+
+output.json
+/.data
