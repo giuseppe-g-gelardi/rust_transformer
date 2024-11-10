@@ -15,11 +15,12 @@ use aws_lambda_events::event::kinesis::{KinesisEvent, KinesisEventRecord};
 use lambda_runtime::{run, service_fn, tracing, LambdaEvent};
 use serde_json;
 
-//
-// cargo lambda invoke lambda --data-file input.json
-// cargo lambda invoke lambda --data-file record.json
-// cargo lambda invoke lambda --data-file mock.json
-//
+/*
+    cargo lambda invoke transformer --data-file input.json
+    cargo lambda invoke transformer --data-file record.json
+    cargo lambda invoke transformer --data-file mock.json
+*/
+
 #[tokio::main]
 async fn main() -> Result<(), lambda_runtime::Error> {
     tracing::init_default_subscriber();
@@ -72,7 +73,6 @@ fn process_kinesis_events(record: &mut KinesisEventRecord) -> Result<(), Box<dyn
     // Serialize the V2 data and encode it in base64 -- needed?? or does Kinesis do it for us
     let serialized_v2_data = serde_json::to_string(&v2_data)?.into_bytes();
     let base64_encoded_v2_data = Base64Data(serialized_v2_data);
-    println!("Base64 encoded V2 data: {:?}", record);
     record.kinesis.data = base64_encoded_v2_data;
     output(&record)?; // send back/write to db??
     Ok(())
@@ -90,10 +90,7 @@ fn validate<T>(
             Ok(())
         }
         false => {
-            eprintln!(
-                "{} Record {:?} is invalid, dropping record",
-                record_type, data_id
-            );
+            eprintln!("{} Record {:?} is invalid, dropping.", record_type, data_id);
             Err("Record is invalid")?
         }
     }
@@ -104,7 +101,7 @@ pub fn output(record: &KinesisEventRecord) -> Result<(), Box<dyn Error>> {
         .append(true)
         .create(true)
         .write(true)
-        .open("./mock_data/output.json")?;
+        .open("./output.json")?;
 
     let mut writer = BufWriter::new(file);
     let record_json = serde_json::to_string(&record)?;

@@ -14,5 +14,5 @@ base64 = "0.22.1"
 tokio = { version = "1", features = ["macros"] }
 
 [[bin]]
-name = "lambda"
-path = "src/lambda.rs"
+name = "transformer"
+path = "src/transformer.rs"
