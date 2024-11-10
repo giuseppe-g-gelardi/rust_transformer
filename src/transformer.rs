@@ -1,9 +1,7 @@
-// mod kinesis;
 mod mapper;
 mod validator;
 
 use mapper::mapper::map_v2_data;
-use serde_json::from_slice;
 use validator::{types::V1UserInformation, validator::ModelValidator, validator::Validator};
 
 use std::error::Error;
@@ -14,6 +12,7 @@ use aws_lambda_events::encodings::Base64Data;
 use aws_lambda_events::event::kinesis::{KinesisEvent, KinesisEventRecord};
 use lambda_runtime::{run, service_fn, tracing, LambdaEvent};
 use serde_json;
+use serde_json::from_slice;
 
 /*
     cargo lambda invoke transformer --data-file input.json
