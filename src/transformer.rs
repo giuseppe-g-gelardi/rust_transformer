@@ -1,4 +1,4 @@
-mod kinesis;
+// mod kinesis;
 mod mapper;
 mod validator;
 
@@ -54,6 +54,8 @@ fn process_kinesis_events(record: &mut KinesisEventRecord) -> Result<(), Box<dyn
     let raw_data: &Vec<u8> = &record.kinesis.data;
     let user_info: V1UserInformation = from_slice(&raw_data)?;
     let validator = ModelValidator;
+
+    println!("Validating record: {:?}", &record);
 
     validate(
         &user_info,
